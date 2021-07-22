@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useTransition, animated } from "react-spring";
+import { animated, useTransition } from "react-spring";
 import ReachAlert from "@reach/alert";
 import Alert from "./Alert";
 import { useTimeout } from "./useTimeout";
@@ -18,7 +18,7 @@ const getStyle = (position: PositionsType) => {
   let style = {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   } as React.CSSProperties;
 
   if (position.includes("right")) {
@@ -58,7 +58,7 @@ export const Message = ({
   position,
   onRequestRemove,
   requestClose = false,
-  duration = 30000
+  duration = 30000,
 }: Props) => {
   const container = React.useRef<HTMLDivElement | null>(null);
   const [timeout, setTimeout] = React.useState(duration);
@@ -74,23 +74,26 @@ export const Message = ({
     from: {
       opacity: 1,
       height: 0,
-      transform: `translateY(${isFromTop ? "-100%" : 0}) scale(1)`
+      transform: `translateY(${isFromTop ? "-100%" : 0}) scale(1)`,
     },
     enter: () => (next: any) =>
       next({
         opacity: 1,
         height: container.current!.getBoundingClientRect().height,
-        transform: `translateY(0) scale(1)`
+        transform: `translateY(0) scale(1)`,
       }),
     leave: {
       opacity: 0,
       height: 0,
-      transform: `translateY(0 scale(0.9)`
+      transform: `translateY(0 scale(0.9)`,
     },
-    onRest
+    onRest,
   } as any;
 
-  const transition = useTransition(localShow, null, animation);
+  const transition = useTransition(localShow, {
+    keys: null,
+    ...animation,
+  });
   const style = React.useMemo(() => getStyle(position), [position]);
 
   function onMouseEnter() {
@@ -125,7 +128,7 @@ export const Message = ({
     if (typeof message === "function") {
       return message({
         id,
-        onClose: close
+        onClose: close,
       });
     }
 
@@ -134,24 +137,24 @@ export const Message = ({
 
   return (
     <React.Fragment>
-      {transition.map(
-        ({ key, item, props }) =>
+      {transition(
+        (props, item) =>
           item && (
             <animated.div
-              key={key}
+              key={String(item)}
               className="Toaster__message"
               onMouseEnter={onMouseEnter}
               onMouseLeave={onMouseLeave}
               style={{
                 opacity: props.opacity,
                 height: props.height,
-                ...style
+                ...style,
               }}
             >
               <animated.div
                 style={{
                   transform: props.transform,
-                  pointerEvents: "auto"
+                  pointerEvents: "auto",
                 }}
                 ref={container}
                 className="Toaster__message-wrapper"
